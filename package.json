@@ -1,0 +1,19 @@
+{
+  "name": "react-pocket-form",
+  "scripts": {},
+  "prettier": {
+    "arrowParens": "always",
+    "jsxSingleQuote": true,
+    "semi": false,
+    "singleQuote": true,
+    "trailingComma": "es5",
+    "printWidth": 80
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.35.1",
+    "@typescript-eslint/parser": "^5.35.1",
+    "eslint": "^8.23.0",
+    "eslint-plugin-react": "^7.31.1",
+    "typescript": "^4.8.2"
+  }
+}

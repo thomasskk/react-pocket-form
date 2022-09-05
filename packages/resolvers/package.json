@@ -1,0 +1,50 @@
+{
+  "name": "react-pocket-form/resolver",
+  "version": "1.0.0",
+  "sideEffects": false,
+  "files": [
+    "lib"
+  ],
+  "main": "./lib/index.cjs.js",
+  "types": "./lib/index.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./lib/index.d.ts",
+      "module": "./lib/index.esm.mjs",
+      "import": "./lib/index.esm.mjs",
+      "require": "./lib/index.cjs.js"
+    }
+  },
+  "scripts": {
+    "test": "vitest",
+    "clean": "rm -rf dist lib",
+    "build": "pnpm clean && pnpm tsc -p tsconfig.build.json --outDir dist & pnpm tsc -p tsconfig.build.json --emitDeclarationOnly && pnpm rollup -c",
+    "release": "pnpm build && npm publish"
+  },
+  "prettier": {
+    "arrowParens": "always",
+    "jsxSingleQuote": true,
+    "semi": false,
+    "singleQuote": true,
+    "trailingComma": "es5",
+    "printWidth": 80
+  },
+  "devDependencies": {
+    "@rollup/plugin-typescript": "^8.4.0",
+    "@typescript-eslint/eslint-plugin": "^5.35.1",
+    "@typescript-eslint/parser": "^5.35.1",
+    "autoprefixer": "^10.4.8",
+    "c8": "^7.12.0",
+    "eslint": "^8.23.0",
+    "jsdom": "^20.0.0",
+    "rollup": "^2.78.1",
+    "rollup-plugin-dts": "^4.2.2",
+    "rollup-plugin-terser": "^7.0.2",
+    "typescript": "^4.8.2",
+    "vitest": "^0.22.1"
+  },
+  "dependencies": {
+    "zod": "^3.18.0"
+  }
+}

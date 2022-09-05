@@ -1,0 +1,11 @@
+{
+  "extends": "../tsconfig.json",
+  "include": ["./**/*.ts*"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "jsx": "react",
+    "types": ["cypress", "node"],
+    "target": "es6",
+    "lib": ["es6", "dom"]
+  }
+}

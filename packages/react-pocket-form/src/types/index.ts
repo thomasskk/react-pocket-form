@@ -33,6 +33,7 @@ export type UseFormProps<T extends object = any> = {
   defaultValue?: DeepPartial<T>
   autoUnregister?: boolean
   resetOnSubmit?: boolean
+  focusOnError?: boolean
   isValidation?: boolean
   validation?: SchemaValidation<T>
 }

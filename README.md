@@ -59,6 +59,7 @@ yarn add react-pocket-form
 - `resetOnSubmit`: Reset all states on sumbit (default: true).
 - `isValidation`: Manage global validation state (default: true).
 - `validation`: Use custom resolver for validation.
+- `focusOnError`: Focus on the first element registered with an error when submiting (default: true).
 
 #### register
 

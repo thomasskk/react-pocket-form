@@ -24,6 +24,7 @@ export function useForm<T extends object = any>({
   isValidation = true,
   autoUnregister = false,
   resetOnSubmit = true,
+  focusOnError = true,
   validation,
   defaultValue,
 }: UseFormProps<T> = {}): UseFormReturn<T> {
@@ -174,6 +175,14 @@ export function useForm<T extends object = any>({
     e?.preventDefault?.()
 
     if (isValidation && !(await validateAll())) {
+      if (focusOnError) {
+        refStore
+          .get(formErrorsStore.m.keys().next().value)
+          ?.elements?.values()
+          .next()
+          .value?.focus()
+      }
+
       return
     }
 

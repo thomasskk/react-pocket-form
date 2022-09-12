@@ -141,7 +141,7 @@ export type Element =
   | HTMLSelectElement
   | null
 
-export type RefElValue<T, P extends Path<T>> = {
+export type RefValue<T, P extends Path<T>> = {
   defaultValue: object
   elements: Map<string, Element>
   type: InputType

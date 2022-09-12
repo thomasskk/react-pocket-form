@@ -1,24 +1,24 @@
-import { useReducer, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import type {
   Element,
   GetValue,
   HandleSubmit,
-  RefElValue,
+  RefValue,
   SetDefaultValue,
   SetValue,
   UseFormProps,
   UseFormRegister,
   UseFormReturn,
-  Watch,
 } from './types/index'
 import type { Path } from './types/utils'
 import { clone } from './utils/clone'
 import { createErrorStore } from './utils/errorStore'
-import { errorsWatcher } from './utils/errorsWatcher'
 import { get } from './utils/get'
 import { set } from './utils/set'
 import { unset } from './utils/unset'
-import { watcher } from './utils/watcher'
+import { useForceUpdate } from './utils/useForceUpdate'
+import { useWatchErrors } from './utils/useWatchErrors'
+import { useWatchValue } from './utils/useWatchValue'
 
 export function useForm<T extends object = any>({
   isValidation = true,
@@ -27,8 +27,8 @@ export function useForm<T extends object = any>({
   validation,
   defaultValue,
 }: UseFormProps<T> = {}): UseFormReturn<T> {
-  const forceUpdate = useReducer((c) => c + 1, 0)[1]
-  const [defaultFormValue, setdefaultFormValue] = useState(clone(defaultValue))
+  const forceUpdate = useForceUpdate()
+  const [defaultFormValue, setDefaultFormValue] = useState(clone(defaultValue))
 
   const watchStore = useRef(new Map<string, () => void>()).current
 
@@ -36,37 +36,31 @@ export function useForm<T extends object = any>({
 
   const formValue = useRef({ c: defaultFormValue ?? {} }).current
 
-  const formErrors = useRef(createErrorStore()).current
+  const formErrorsStore = useRef(createErrorStore()).current
 
-  const isDefaultSet = useRef({ c: false }).current
+  const refStore = useRef(new Map<Path<T>, RefValue<T, Path<T>>>()).current
 
-  const refEl = useRef(new Map<Path<T>, RefElValue<T, Path<T>>>()).current
-
-  const isDirty = useRef(new Set<string>()).current
+  const dirtyRefStore = useRef(new Set<string>()).current
 
   const reset = () => {
     formValue.c = defaultFormValue ?? {}
-    isDefaultSet.c = false
-    formErrors.g.clear()
-    formErrors.i.clear()
-    formErrors.m.clear()
-    refEl.clear()
-    isDirty.clear()
+    formErrorsStore.g.clear()
+    formErrorsStore.i.clear()
+    formErrorsStore.m.clear()
+    refStore.clear()
+    dirtyRefStore.clear()
     resetRef.c += 1
     forceUpdate()
   }
 
   const setDefaultValue: SetDefaultValue<T> = (value) => {
-    if (!isDefaultSet.c) {
-      isDefaultSet.c = true
-      const clonedValue = clone(value)
-      formValue.c = clonedValue
-      setdefaultFormValue(clonedValue)
-    }
+    const clonedValue = clone(value)
+    formValue.c = clonedValue
+    setDefaultFormValue(clonedValue)
   }
 
   const getAllValue = () => {
-    return clone(formValue.c as T)
+    return clone(formValue.c) as T
   }
 
   const getValue: GetValue<T> = (path) => {
@@ -74,13 +68,13 @@ export function useForm<T extends object = any>({
   }
 
   const setValue: SetValue<T> = (name, value) => {
-    isDirty.add(name)
+    dirtyRefStore.add(name)
     return set(formValue.c, name, clone(value))
   }
 
   const validate = async (
     path: Path<T>,
-    ref: RefElValue<T, Path<T>>,
+    ref: RefValue<T, Path<T>>,
     values: T
   ) => {
     const mssg: string[] = []
@@ -110,12 +104,12 @@ export function useForm<T extends object = any>({
     const isValid = mssg.length === 0
 
     if (isValid) {
-      formErrors.m.delete(path)
+      formErrorsStore.m.delete(path)
     } else {
-      formErrors.m.set(path, mssg)
+      formErrorsStore.m.set(path, mssg)
     }
 
-    formErrors.i.get(path)?.()
+    formErrorsStore.i.get(path)?.()
 
     return isValid
   }
@@ -123,10 +117,10 @@ export function useForm<T extends object = any>({
   const validateAll = async () => {
     let isValid = true
 
-    formErrors.m.clear()
+    formErrorsStore.m.clear()
 
     await Promise.all(
-      [...refEl.entries()].map(async (entry) => {
+      [...refStore.entries()].map(async (entry) => {
         if (!(await validate(entry[0], entry[1], getAllValue()))) {
           isValid = false
         }
@@ -134,18 +128,14 @@ export function useForm<T extends object = any>({
     )
 
     if (!isValid) {
-      formErrors.updateGlobal()
+      formErrorsStore.updateGlobal()
     }
 
     return isValid
   }
 
-  const watch: Watch<T> = (path, opts) => {
-    return watcher(path, watchStore, formValue, opts?.defaultValue)
-  }
-
   const setFormValue = <N extends Path<T>>(
-    { elements, type, transform }: RefElValue<T, N>,
+    { elements, type, transform }: RefValue<T, N>,
     name: N
   ) => {
     const value: Map<string, unknown> = new Map()
@@ -209,22 +199,22 @@ export function useForm<T extends object = any>({
       onMount,
     } = options
 
-    const isDirtyBool = isDirty.has(name)
+    const isDirty = dirtyRefStore.has(name)
     let defaultValue = options.defaultValue ?? get(defaultFormValue, name)
 
     if (!autoUnregister) {
-      defaultValue = isDirtyBool ? getValue(name) ?? defaultValue : defaultValue
+      defaultValue = isDirty ? getValue(name) ?? defaultValue : defaultValue
     }
 
-    const onEventValidate = async (ref: any, on: string) => {
-      const isPrevError = formErrors.m.has(name)
+    const onEventValidate = async (ref: any, eventType: string) => {
+      const isPrevError = formErrorsStore.m.has(name)
 
-      const isRevalidate = isPrevError && revalidateOn === on
-      const isValidate = validateOn === on && !isPrevError
+      const isRevalidate = isPrevError && revalidateOn === eventType
+      const isValidate = validateOn === eventType && !isPrevError
 
       if (isValidation && (isRevalidate || isValidate)) {
         await validate(name, ref, getAllValue())
-        formErrors.updateGlobal()
+        formErrorsStore.updateGlobal()
       }
     }
 
@@ -239,24 +229,25 @@ export function useForm<T extends object = any>({
           type === 'checkbox' || type === 'radio' ? undefined : defaultValue,
       },
       onBlur: async (event) => {
-        const ref = refEl.get(name)
+        const ref = refStore.get(name)
 
         if (!ref) {
           return
         }
+
         onEventValidate(ref, 'blur')
 
         await onBlur?.(event.currentTarget, getValue(name))
       },
       onChange: async (event) => {
-        const ref = refEl.get(name)
+        const ref = refStore.get(name)
 
         if (!ref) {
           return
         }
 
         setFormValue(ref, name)
-        isDirty.delete(name)
+        dirtyRefStore.delete(name)
 
         onEventValidate(ref, 'change')
 
@@ -265,25 +256,27 @@ export function useForm<T extends object = any>({
         await onChange?.(event.currentTarget, getValue(name))
       },
       ref: async (element: Element) => {
-        const refElValue = refEl.get(name)
-        const id = name + value
+        const refValue = refStore.get(name)
+        const refElementId = name + value
 
         if (!element) {
-          autoUnregister && refElValue?.elements.get(id) && isDirty.delete(name)
+          if (autoUnregister && refValue?.elements.get(refElementId)) {
+            dirtyRefStore.delete(name)
+          }
 
-          refElValue?.elements.delete(id)
+          refValue?.elements.delete(refElementId)
 
-          if (autoUnregister && refElValue?.elements.size === 0) {
-            refEl.delete(name)
+          if (autoUnregister && refValue?.elements.size === 0) {
+            refStore.delete(name)
             unset(formValue.c, name)
           }
 
           return onUnmount?.(element)
         }
 
-        if (!refElValue) {
+        if (!refValue) {
           const newRef = {
-            elements: new Map([[id, element]]),
+            elements: new Map([[refElementId, element]]),
             defaultValue,
             type,
             validation,
@@ -292,11 +285,11 @@ export function useForm<T extends object = any>({
             message,
           }
           // @ts-expect-error type
-          refEl.set(name, newRef)
-          !isDirtyBool && setFormValue(newRef, name)
+          refStore.set(name, newRef)
+          !isDirty && setFormValue(newRef, name)
         } else {
-          refElValue.elements.set(id, element)
-          !isDirtyBool && setFormValue(refElValue, name)
+          refValue.elements.set(refElementId, element)
+          !isDirty && setFormValue(refValue, name)
         }
 
         await onMount?.(element, getValue(name))
@@ -307,9 +300,15 @@ export function useForm<T extends object = any>({
   return {
     register,
     reset,
-    watch,
-    errors: () => errorsWatcher(formErrors, resetRef.c),
-    error: (path) => errorsWatcher(formErrors, resetRef.c, path),
+    watch: (path, opts) => {
+      return useWatchValue(path, watchStore, formValue, opts?.defaultValue)
+    },
+    errors: () => {
+      return useWatchErrors(formErrorsStore, resetRef.c)
+    },
+    error: (path) => {
+      return useWatchErrors(formErrorsStore, resetRef.c, path)
+    },
     handleSubmit,
     setValue,
     getValue,

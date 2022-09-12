@@ -1,14 +1,15 @@
-import { useEffect, useReducer } from 'react'
+import { useEffect } from 'react'
 import { clone } from './clone'
 import { get } from './get'
+import { useForceUpdate } from './useForceUpdate'
 
-export const watcher = (
+export const useWatchValue = (
   path: string,
   watchStore: Map<string, () => void>,
   formValue: { c: any },
   defaultValue: any
 ) => {
-  const forceUpdate = useReducer((c) => c + 1, 0)[1]
+  const forceUpdate = useForceUpdate()
 
   useEffect(() => {
     watchStore.set(path, forceUpdate)

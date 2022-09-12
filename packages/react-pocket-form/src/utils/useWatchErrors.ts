@@ -1,12 +1,13 @@
-import { useEffect, useReducer } from 'react'
+import { useEffect } from 'react'
 import { ErrorStore } from './errorStore'
+import { useForceUpdate } from './useForceUpdate'
 
-export const errorsWatcher = (
+export const useWatchErrors = (
   store: ErrorStore,
   resetRef: number,
   name = ''
 ) => {
-  const forceUpdate = useReducer((c) => c + 1, 0)[1]
+  const forceUpdate = useForceUpdate()
 
   useEffect(() => {
     if (name) {

@@ -264,9 +264,10 @@ export function useForm<T extends object = any>({
 
         await onChange?.(event.currentTarget, getValue(name))
       },
-      ref: async (element: Element) => {
+      ref: async (element: Element, overrideValue?: any) => {
         const refValue = refStore.get(name)
-        const refElementId = name + value
+        // overrideValue is useful when you register only once for a radio group and want to track the input using ref returned from register otherwise the elementId would be the same for all the input
+        const refElementId = name + overrideValue ?? value
 
         if (!element) {
           if (autoUnregister && refValue?.elements.get(refElementId)) {

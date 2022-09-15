@@ -117,14 +117,14 @@ export type UseFormRegister<T = any> = <P extends Path<T>>(
 ) => UseFormRegisterReturn<T, P>
 
 export type UseFormRegisterReturn<T = any, P extends Path<T> = any> = {
-  onChange: (event: eventEl, value?: PropertyType<T, P>) => Promise<void> | void
-  onBlur: (event: eventEl, value?: PropertyType<T, P>) => Promise<void> | void
-  ref: (el: Element) => void
+  onChange: (event: eventEl) => Promise<void> | void
+  onBlur: (event: eventEl) => Promise<void> | void
+  ref: (el: Element, overrideValue?: PropertyType<T, P>) => void
   name: string
-  defaultValue?: string | number | readonly string[] | undefined
+  defaultValue?: any
   type: InputType
   defaultChecked?: boolean
-  value: string | number | readonly string[] | undefined
+  value: any
   required?: boolean
 }
 

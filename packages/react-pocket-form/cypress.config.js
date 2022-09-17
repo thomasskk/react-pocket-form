@@ -1,7 +1,7 @@
 module.exports = {
   viewportWidth: 1000,
   viewportHeight: 1000,
-  video: true,
+  video: false,
   env: {
     reactDevtools: true,
   },

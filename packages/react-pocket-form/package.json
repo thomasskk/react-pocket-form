@@ -17,7 +17,8 @@
     }
   },
   "scripts": {
-    "test": "vitest",
+    "test:unit": "vitest run",
+    "test:cypress": "cypress run --component",
     "clean": "rm -rf dist lib",
     "build": "pnpm clean && pnpm tsc -p tsconfig.build.json --outDir dist & pnpm tsc -p tsconfig.build.json --emitDeclarationOnly && pnpm rollup -c",
     "release": "pnpm build && npm publish"

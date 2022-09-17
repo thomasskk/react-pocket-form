@@ -311,7 +311,13 @@ export function useForm<T extends object = any>({
     register,
     reset,
     watch: (path, opts) => {
-      return useWatchValue(path, watchStore, formValue, opts?.defaultValue)
+      return useWatchValue(
+        path,
+        watchStore,
+        formValue,
+        opts?.defaultValue,
+        resetRef.c
+      )
     },
     errors: () => {
       return useWatchErrors(formErrorsStore, resetRef.c)

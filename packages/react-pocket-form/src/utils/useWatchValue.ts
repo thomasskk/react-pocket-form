@@ -7,7 +7,8 @@ export const useWatchValue = (
   path: string,
   watchStore: Map<string, () => void>,
   formValue: { c: any },
-  defaultValue: any
+  defaultValue: any,
+  resetRef: number
 ) => {
   const forceUpdate = useForceUpdate()
 
@@ -16,7 +17,7 @@ export const useWatchValue = (
     return () => {
       watchStore.delete(path)
     }
-  }, [])
+  }, [resetRef])
 
   return clone(get(formValue.c, path)) ?? defaultValue
 }

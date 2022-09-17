@@ -91,7 +91,7 @@ export type UseFormRegisterOptions<T = any, P extends Path<T> = any> = {
   validateOn?: 'change' | 'blur' | 'submit'
   revalidateOn?: 'change' | 'submit' | 'blur'
   onChange?: (
-    element: Element,
+    element?: Element,
     value?: PropertyType<T, P>
   ) => void | Promise<void>
   onBlur?: (
@@ -117,7 +117,7 @@ export type UseFormRegister<T = any> = <P extends Path<T>>(
 ) => UseFormRegisterReturn<T, P>
 
 export type UseFormRegisterReturn<T = any, P extends Path<T> = any> = {
-  onChange: (event: eventEl) => Promise<void> | void
+  onChange: (event?: eventEl) => Promise<void> | void
   onBlur: (event: eventEl) => Promise<void> | void
   ref: (el: Element, overrideValue?: PropertyType<T, P>) => void
   name: string

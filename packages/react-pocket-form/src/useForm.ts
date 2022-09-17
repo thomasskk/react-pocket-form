@@ -262,7 +262,7 @@ export function useForm<T extends object = any>({
 
         watchStore.get(name)?.()
 
-        await onChange?.(event.currentTarget, getValue(name))
+        await onChange?.(event?.currentTarget, getValue(name))
       },
       ref: async (element, overrideValue) => {
         const refValue = refStore.get(name)

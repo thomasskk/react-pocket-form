@@ -28,5 +28,5 @@ jobs:
       - name: unit test
         run: pnpm --filter react-pocket-form test:unit
 
-      - name: unit test
+      - name: cypress test
         run: pnpm --filter react-pocket-form test:cypress

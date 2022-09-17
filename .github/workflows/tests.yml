@@ -22,24 +22,11 @@ jobs:
         with:
           version: latest
 
-      - name: Get pnpm store directory
-        id: pnpm-cache
-        run: |
-          echo "::set-output name=pnpm_cache_dir::$(pnpm store path)"
-
-      - uses: actions/cache@v3
-        name: Setup pnpm cache
-        with:
-          path: ${{ steps.pnpm-cache.outputs.pnpm_cache_dir }}
-          key: pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            pnpm-store-
-
       - name: Install dependencies
         run: pnpm install
 
       - name: unit test
         run: pnpm --filter react-pocket-form test:unit
 
-      - name: cypress test
-        run: pnpm --filter react-pocket-form run test:cypress
+      - name: unit test
+        run: pnpm --filter react-pocket-form test:cypress

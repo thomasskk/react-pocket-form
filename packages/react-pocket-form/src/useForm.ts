@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import type {
-  Element,
+  ErrorStore,
   GetValue,
   HandleSubmit,
   RefValue,
@@ -12,7 +12,6 @@ import type {
 } from './types/index'
 import type { Path } from './types/utils'
 import { clone } from './utils/clone'
-import { createErrorStore } from './utils/errorStore'
 import { get } from './utils/get'
 import { set } from './utils/set'
 import { unset } from './utils/unset'
@@ -37,7 +36,11 @@ export function useForm<T extends object = any>({
 
   const formValue = useRef({ c: defaultFormValue ?? {} }).current
 
-  const formErrorsStore = useRef(createErrorStore()).current
+  const formErrorsStore = useRef<ErrorStore>({
+    i: new Map<string, () => void>(), // single error
+    m: new Map<string, string[]>(), // messages store
+    g: new Map<string, () => void>(), // global error
+  }).current
 
   const refStore = useRef(new Map<Path<T>, RefValue<T, Path<T>>>()).current
 
@@ -129,7 +132,7 @@ export function useForm<T extends object = any>({
     )
 
     if (!isValid) {
-      formErrorsStore.updateGlobal()
+      formErrorsStore.g.forEach((v) => v?.())
     }
 
     return isValid
@@ -223,7 +226,8 @@ export function useForm<T extends object = any>({
 
       if (isValidation && (isRevalidate || isValidate)) {
         await validate(name, ref, getAllValue())
-        formErrorsStore.updateGlobal()
+        const errorCb = formErrorsStore.i.get(name)
+        errorCb ? errorCb() : formErrorsStore.g.forEach((v) => v?.())
       }
     }
 
@@ -246,7 +250,7 @@ export function useForm<T extends object = any>({
 
         onEventValidate(ref, 'blur')
 
-        await onBlur?.(event.currentTarget, getValue(name))
+        await onBlur?.(event?.currentTarget, getValue(name))
       },
       onChange: async (event) => {
         const ref = refStore.get(name)

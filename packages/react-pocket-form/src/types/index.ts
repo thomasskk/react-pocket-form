@@ -95,7 +95,7 @@ export type UseFormRegisterOptions<T = any, P extends Path<T> = any> = {
     value?: PropertyType<T, P>
   ) => void | Promise<void>
   onBlur?: (
-    element: Element,
+    element?: Element,
     value?: PropertyType<T, P>
   ) => void | Promise<void>
   onMount?: (
@@ -118,7 +118,7 @@ export type UseFormRegister<T = any> = <P extends Path<T>>(
 
 export type UseFormRegisterReturn<T = any, P extends Path<T> = any> = {
   onChange: (event?: eventEl) => Promise<void> | void
-  onBlur: (event: eventEl) => Promise<void> | void
+  onBlur: (event?: eventEl) => Promise<void> | void
   ref: (el: Element, overrideValue?: PropertyType<T, P>) => void
   name: string
   defaultValue?: any
@@ -150,4 +150,10 @@ export type RefValue<T, P extends Path<T>> = {
   message?: string
   required?: string | boolean
   transform: (value: any, el?: Element) => any
+}
+
+export type ErrorStore = {
+  i: Map<string, () => void>
+  m: Map<string, string[]>
+  g: Map<string, () => void>
 }

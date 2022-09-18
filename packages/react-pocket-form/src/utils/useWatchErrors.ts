@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { ErrorStore } from './errorStore'
+import { ErrorStore } from '../types'
 import { useForceUpdate } from './useForceUpdate'
 
 export const useWatchErrors = (
@@ -10,14 +10,11 @@ export const useWatchErrors = (
   const forceUpdate = useForceUpdate()
 
   useEffect(() => {
-    if (name) {
-      store.set(name, forceUpdate)
-    } else {
-      store.setGlobal(name, forceUpdate)
-    }
+    store[name ? 'i' : 'g'].set(name, forceUpdate)
     return () => {
       if (name) {
-        store.delete(name)
+        store.m.delete(name)
+        store.i.delete(name)
       }
     }
   }, [resetRef])

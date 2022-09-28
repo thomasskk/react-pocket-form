@@ -48,6 +48,8 @@ export type SetDefaultValue<T> = (value: DeepPartial<T>) => void
 export type Error<T> = (path: Path<T>) => string[] | undefined
 export type Errors<T> = () => Record<Path<T>, string[] | undefined>
 
+export type ClearError<T> = (path: Path<T>) => void
+
 export type Watch<T extends object> = <P extends Path<T>>(
   path: P,
   opts?: { defaultValue: PropertyType<T, P> }
@@ -61,6 +63,7 @@ export type UseFormReturn<T extends object = any> = {
   handleSubmit: HandleSubmit<T>
   getValue: GetValue<T>
   setValue: SetValue<T>
+  clearError: ClearError<T>
   getAllValue: () => T
   setDefaultValue: SetDefaultValue<T>
   watch: Watch<T>

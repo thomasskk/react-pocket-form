@@ -113,6 +113,10 @@ Hook which return the watched value and trigger a single re-render when it chang
 
 #### getValue
 
+#### clearError
+
+`(path) => void`
+
 #### setValue
 
 #### getAllValue

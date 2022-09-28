@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import type {
+  ClearError,
   ErrorStore,
   GetValue,
   HandleSubmit,
@@ -74,6 +75,12 @@ export function useForm<T extends object = any>({
   const setValue: SetValue<T> = (name, value) => {
     dirtyRefStore.add(name)
     return set(formValue.c, name, clone(value))
+  }
+
+  const clearError: ClearError<T> = (path) => {
+    const cb = formErrorsStore.i.get(path) ?? formErrorsStore.g.get(path)
+    formErrorsStore.m.delete(path)
+    cb?.()
   }
 
   const validate = async (
@@ -331,6 +338,7 @@ export function useForm<T extends object = any>({
     },
     handleSubmit,
     setValue,
+    clearError,
     getValue,
     getAllValue,
     setDefaultValue,
